@@ -31,7 +31,7 @@ The function is invoked as shown below
 'password' // Password associated with 'username', use a dummy value if not using authentication
 'DB'       // Name of the InfluxDB to connect to
 'QUERIES'  // InfluxQL queries (separated by ';').
-           // Queries should contain a GROUP BY clause otherwise tags will produce new Geo Time Series.
+           // Queries should contain a GROUP BY clause otherwise tags will produce new Geo Time Series™.
            // The result is a list of lists of Geo Time Series, one inner list per query.
 INFLUXDBFETCH
 ```
