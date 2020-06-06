@@ -48,7 +48,7 @@ public class INFLUXDBFETCH extends NamedWarpScriptFunction implements WarpScript
     Object top = stack.pop();
     
     if (!(top instanceof String)) {
-      throw new WarpScriptException(getName() + " expects an InfluxQL query on top of the stack.");
+      throw new WarpScriptException(getName() + " expects an InfluxQL query.");
     }
     
     String command = top.toString();
@@ -56,7 +56,7 @@ public class INFLUXDBFETCH extends NamedWarpScriptFunction implements WarpScript
     top = stack.pop();
     
     if (!(top instanceof String)) {
-      throw new WarpScriptException(getName() + " expects a database name below the query.");
+      throw new WarpScriptException(getName() + " expects a database name before the query.");
     }
     
     String dbName = top.toString();
@@ -64,7 +64,7 @@ public class INFLUXDBFETCH extends NamedWarpScriptFunction implements WarpScript
     top = stack.pop();
     
     if (!(top instanceof String)) {
-      throw new WarpScriptException(getName() + " expects a password below the dbname.");
+      throw new WarpScriptException(getName() + " expects a password before the dbname.");
     }
     
     String password = top.toString();
@@ -72,7 +72,7 @@ public class INFLUXDBFETCH extends NamedWarpScriptFunction implements WarpScript
     top = stack.pop();
     
     if (!(top instanceof String)) {
-      throw new WarpScriptException(getName() + " expects a user name below the password.");
+      throw new WarpScriptException(getName() + " expects a user name before the password.");
     }
     
     String username = top.toString();
@@ -80,7 +80,7 @@ public class INFLUXDBFETCH extends NamedWarpScriptFunction implements WarpScript
     top = stack.pop();
     
     if (!(top instanceof String)) {
-      throw new WarpScriptException(getName() + " expects a database URL below the username.");
+      throw new WarpScriptException(getName() + " expects a database URL before the username.");
     }
     
     String url = top.toString();
