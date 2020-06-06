@@ -1,5 +1,5 @@
 //
-//   Copyright 2019  SenX S.A.S.
+//   Copyright 2019-2020  SenX S.A.S.
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -109,8 +109,10 @@ dependencies {
   // Insert your dependencies here
   //
   //compile group: 'GROUP', name: 'NAME', version: 'VERSION'
-  compile group: 'org.influxdb', name: 'influxdb-java', version: '2.15'
+  compile group: 'org.influxdb', name: 'influxdb-java', version: '2.19'
 
+  // https://github.com/influxdata/influxdb-client-java
+  compile "com.influxdb:influxdb-client-java:1.8.0"
 
   testCompile'io.warp10:warpscript:+'
   testImplementation 'junit:junit:4.12'
@@ -170,7 +172,7 @@ shadowJar {
     include 'README.md'
   }
 
-  relocate 'com', 'io.warp10.script.ext.influxdb.shadow.com'
+  //relocate 'com.influxdb', 'io.warp10.script.ext.influxdb.shadow.com.influxdb'
   relocate 'retrofit2', 'io.warp10.script.ext.influxdb.shadow.retrofit2'
   relocate 'okio', 'io.warp10.script.ext.influxdb.shadow.okio'
   relocate 'okhttp3', 'io.warp10.script.ext.influxdb.shadow.okhttp3'
