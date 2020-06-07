@@ -1,5 +1,5 @@
 //
-//   Copyright 2018  SenX S.A.S.
+//   Copyright 2018-2020  SenX S.A.S.
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package io.warp10.script.ext.influxdb;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.influxdb.InfluxDB;
@@ -39,6 +40,12 @@ import io.warp10.script.WarpScriptStackFunction;
 
 public class INFLUXDBFETCH extends NamedWarpScriptFunction implements WarpScriptStackFunction {
     
+  private static final String KEY_URL = "url";
+  private static final String KEY_DB = "db";
+  private static final String KEY_USER = "user";
+  private static final String KEY_PASSWORD = "password";
+  private static final String KEY_INFLUXQL = "influxql";
+
   public INFLUXDBFETCH(String name) {
     super(name);
   }
@@ -47,47 +54,62 @@ public class INFLUXDBFETCH extends NamedWarpScriptFunction implements WarpScript
   public Object apply(WarpScriptStack stack) throws WarpScriptException {
     Object top = stack.pop();
     
-    if (!(top instanceof String)) {
-      throw new WarpScriptException(getName() + " expects an InfluxQL query.");
+    String influxql;
+    String dbName;
+    String password;
+    String username;
+    String url;
+    
+    if (top instanceof Map) {
+      Map<Object,Object> params = (Map<Object,Object>) top;
+      influxql = String.valueOf(params.get(KEY_INFLUXQL));
+      dbName = String.valueOf(params.get(KEY_DB));
+      password = String.valueOf(params.get(KEY_PASSWORD));
+      username = String.valueOf(params.get(KEY_USER));
+      url = String.valueOf(params.get(KEY_URL));
+    } else {
+      if (!(top instanceof String)) {
+        throw new WarpScriptException(getName() + " expects an InfluxQL query.");
+      }
+      
+      influxql = top.toString();
+      
+      top = stack.pop();
+      
+      if (!(top instanceof String)) {
+        throw new WarpScriptException(getName() + " expects a database name before the query.");
+      }
+      
+      dbName = top.toString();
+      
+      top = stack.pop();
+      
+      if (!(top instanceof String)) {
+        throw new WarpScriptException(getName() + " expects a password before the dbname.");
+      }
+      
+      password = top.toString();
+      
+      top = stack.pop();
+      
+      if (!(top instanceof String)) {
+        throw new WarpScriptException(getName() + " expects a user name before the password.");
+      }
+      
+      username = top.toString();
+      
+      top = stack.pop();
+      
+      if (!(top instanceof String)) {
+        throw new WarpScriptException(getName() + " expects a database URL before the username.");
+      }
+      
+      url = top.toString();            
     }
-    
-    String command = top.toString();
-    
-    top = stack.pop();
-    
-    if (!(top instanceof String)) {
-      throw new WarpScriptException(getName() + " expects a database name before the query.");
-    }
-    
-    String dbName = top.toString();
-    
-    top = stack.pop();
-    
-    if (!(top instanceof String)) {
-      throw new WarpScriptException(getName() + " expects a password before the dbname.");
-    }
-    
-    String password = top.toString();
-    
-    top = stack.pop();
-    
-    if (!(top instanceof String)) {
-      throw new WarpScriptException(getName() + " expects a user name before the password.");
-    }
-    
-    String username = top.toString();
-    
-    top = stack.pop();
-    
-    if (!(top instanceof String)) {
-      throw new WarpScriptException(getName() + " expects a database URL before the username.");
-    }
-    
-    String url = top.toString();
     
     InfluxDB influxdb = InfluxDBFactory.connect(url, username, password);
     
-    Query query = new Query(command, dbName, true);
+    Query query = new Query(influxql, dbName, true);
     
     // Request timestamps as nanoseconds so we do not waste time parsing timestamps
     QueryResult results = influxdb.query(query, TimeUnit.NANOSECONDS);
