@@ -1,5 +1,5 @@
 //
-//   Copyright 2018  SenX S.A.S.
+//   Copyright 2018-2020  SenX S.A.S.
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -28,7 +28,9 @@ public class InfluxDBWarpScriptExtension extends WarpScriptExtension {
   static {
     functions = new HashMap<String, Object>();
     
-    functions.put("INFLUXDBFETCH", new INFLUXDBFETCH("INFLUXDBFETCH"));
+    functions.put("INFLUXDB.FETCH", new INFLUXDBFETCH("INFLUXDB.FETCH"));
+    functions.put("INFLUXDB.UPDATE", new INFLUXDBUPDATE("INFLUXDB.UPDATE"));
+    functions.put("INFLUXDB.FLUX", new INFLUXDBFLUX("INFLUXDB.FLUX"));
   }
   
   @Override
