@@ -10,6 +10,8 @@
   "git": "https://github.com/senx/warp10-ext-influxdb",
   "repoUrl": "https://dl.bintray.com/senx/maven",
   "tags": [
-    "InfluxDB"
+    "InfluxDB",
+    "flux",
+    "influxql"
   ]
 }
