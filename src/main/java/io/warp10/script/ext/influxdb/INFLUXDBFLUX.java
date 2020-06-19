@@ -45,7 +45,7 @@ public class INFLUXDBFLUX extends NamedWarpScriptFunction implements WarpScriptS
   public static final String KEY_URL = "url";
   public static final String KEY_TOKEN = "token";
   public static final String KEY_ORG = "org";
-  public static final String KEY_USERNAME = "username";
+  public static final String KEY_USER = "user";
   public static final String KEY_PASSWORD = "password";
   private static final String KEY_FLUX = "flux";
   
@@ -80,10 +80,10 @@ public class INFLUXDBFLUX extends NamedWarpScriptFunction implements WarpScriptS
     
     if (params.containsKey(KEY_TOKEN) && params.get(KEY_TOKEN) instanceof String) {
       builder.authenticateToken(((String) params.get(KEY_TOKEN)).toCharArray());
-    } else if (params.get(KEY_USERNAME) instanceof String && params.get(KEY_PASSWORD) instanceof String) {
-      builder.authenticate((String) params.get(KEY_USERNAME), ((String) params.get(KEY_PASSWORD)).toCharArray()); 
+    } else if (params.get(KEY_USER) instanceof String && params.get(KEY_PASSWORD) instanceof String) {
+      builder.authenticate((String) params.get(KEY_USER), ((String) params.get(KEY_PASSWORD)).toCharArray()); 
     } else {
-      throw new WarpScriptException(getName() + " missing key '" + KEY_TOKEN + "' or keys '" + KEY_USERNAME + "' and '" + KEY_PASSWORD + "'.");
+      throw new WarpScriptException(getName() + " missing key '" + KEY_TOKEN + "' or keys '" + KEY_USER + "' and '" + KEY_PASSWORD + "'.");
     }
     
     if (!(params.get(KEY_ORG) instanceof String)) {

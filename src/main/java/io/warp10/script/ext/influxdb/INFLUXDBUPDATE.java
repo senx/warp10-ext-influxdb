@@ -98,11 +98,16 @@ public class INFLUXDBUPDATE extends NamedWarpScriptFunction implements WarpScrip
         throw new WarpScriptException(getName() + " missing key '" + INFLUXDBFLUX.KEY_URL + "'.");
       }
       String url = (String) params.get(INFLUXDBFLUX.KEY_URL);
-      
-      if (!(params.get(INFLUXDBFLUX.KEY_USERNAME) instanceof String)) {
-        throw new WarpScriptException(getName() + " missing key '" + INFLUXDBFLUX.KEY_USERNAME + "'.");
+
+      if (!(params.get(INFLUXDBFETCH.KEY_DB) instanceof String)) {
+        throw new WarpScriptException(getName() + " missing key '" + INFLUXDBFETCH.KEY_DB + "'.");        
+      }      
+      String db = (String) params.get(INFLUXDBFETCH.KEY_DB);
+
+      if (!(params.get(INFLUXDBFLUX.KEY_USER) instanceof String)) {
+        throw new WarpScriptException(getName() + " missing key '" + INFLUXDBFLUX.KEY_USER + "'.");
       }
-      String username = (String) params.get(INFLUXDBFLUX.KEY_USERNAME);
+      String username = (String) params.get(INFLUXDBFLUX.KEY_USER);
       
       if (!(params.get(INFLUXDBFLUX.KEY_PASSWORD) instanceof String)) {
         throw new WarpScriptException(getName() + " missing key '" + INFLUXDBFLUX.KEY_PASSWORD + "'.");
@@ -113,7 +118,7 @@ public class INFLUXDBUPDATE extends NamedWarpScriptFunction implements WarpScrip
       if (!(params.get(KEY_MEASUREMENT) instanceof String)) {
         throw new WarpScriptException(getName() + " missing key '" + KEY_MEASUREMENT + "'.");
       }
-
+      
       String measurement = (String) params.get(KEY_MEASUREMENT);
 
       String measurementAttr = null;
@@ -137,6 +142,7 @@ public class INFLUXDBUPDATE extends NamedWarpScriptFunction implements WarpScrip
       
       try {
         influxdb = InfluxDBFactory.connect(url, username, password);
+        influxdb.setDatabase(db);
         influxdb.enableBatch(BatchOptions.DEFAULTS);
         
         long units = 1000000000L / Constants.TIME_UNITS_PER_S;
@@ -154,7 +160,7 @@ public class INFLUXDBUPDATE extends NamedWarpScriptFunction implements WarpScrip
             //
             String name = gts.getName();
             String mes = measurement;
-            if (gts.getMetadata().getAttributesSize() > 0 && gts.getMetadata().getAttributes().containsKey(measurementAttr)) {
+            if (null != measurementAttr && gts.getMetadata().getAttributesSize() > 0 && gts.getMetadata().getAttributes().containsKey(measurementAttr)) {
               mes = gts.getMetadata().getAttributes().get(measurementAttr);
             }
             
@@ -183,7 +189,7 @@ public class INFLUXDBUPDATE extends NamedWarpScriptFunction implements WarpScrip
             //
             String name = encoder.getName();
             String mes = measurement;
-            if (encoder.getMetadata().getAttributesSize() > 0 && encoder.getMetadata().getAttributes().containsKey(measurementAttr)) {
+            if (null != measurementAttr && encoder.getMetadata().getAttributesSize() > 0 && encoder.getMetadata().getAttributes().containsKey(measurementAttr)) {
               mes = encoder.getMetadata().getAttributes().get(measurementAttr);
             }
             
@@ -227,13 +233,13 @@ public class INFLUXDBUPDATE extends NamedWarpScriptFunction implements WarpScrip
       
       if (params.containsKey(INFLUXDBFLUX.KEY_TOKEN) && params.get(INFLUXDBFLUX.KEY_TOKEN) instanceof String) {
         builder.authenticateToken(((String) params.get(INFLUXDBFLUX.KEY_TOKEN)).toCharArray());
-      } else if (params.containsKey(INFLUXDBFLUX.KEY_USERNAME)
+      } else if (params.containsKey(INFLUXDBFLUX.KEY_USER)
           && params.containsKey(INFLUXDBFLUX.KEY_PASSWORD)
-          && params.get(INFLUXDBFLUX.KEY_USERNAME) instanceof String
+          && params.get(INFLUXDBFLUX.KEY_USER) instanceof String
           && params.get(INFLUXDBFLUX.KEY_PASSWORD) instanceof String) {
-        builder.authenticate((String) params.get(INFLUXDBFLUX.KEY_USERNAME), ((String) params.get(INFLUXDBFLUX.KEY_PASSWORD)).toCharArray()); 
+        builder.authenticate((String) params.get(INFLUXDBFLUX.KEY_USER), ((String) params.get(INFLUXDBFLUX.KEY_PASSWORD)).toCharArray()); 
       } else {
-        throw new WarpScriptException(getName() + " missing key '" + INFLUXDBFLUX.KEY_TOKEN + "' or keys '" + INFLUXDBFLUX.KEY_USERNAME + "' and '" + INFLUXDBFLUX.KEY_PASSWORD + "'.");
+        throw new WarpScriptException(getName() + " missing key '" + INFLUXDBFLUX.KEY_TOKEN + "' or keys '" + INFLUXDBFLUX.KEY_USER + "' and '" + INFLUXDBFLUX.KEY_PASSWORD + "'.");
       }
       
       if (!params.containsKey(INFLUXDBFLUX.KEY_ORG) || !(params.get(INFLUXDBFLUX.KEY_ORG) instanceof String)) {
@@ -254,6 +260,12 @@ public class INFLUXDBUPDATE extends NamedWarpScriptFunction implements WarpScrip
       
       String measurement = (String) params.get(KEY_MEASUREMENT);
       
+      String measurementAttr = null;
+      
+      if (params.get(KEY_ATTR) instanceof String) {
+        measurementAttr = (String) params.get(KEY_ATTR);
+      }
+
       InfluxDBClientOptions options = builder.build();
       
       InfluxDBClient client = null;
@@ -291,13 +303,18 @@ public class INFLUXDBUPDATE extends NamedWarpScriptFunction implements WarpScrip
             String field = decoder.getName();
             Map<String,String> tags = new HashMap<String,String>(decoder.getLabels());
             
+            String mes = measurement;
+            if (null != measurementAttr && decoder.getMetadata().getAttributesSize() > 0 && decoder.getMetadata().getAttributes().containsKey(measurementAttr)) {
+              mes = decoder.getMetadata().getAttributes().get(measurementAttr);
+            }
+            
             while(decoder.next()) {
               long ts = decoder.getTimestamp();
               long location = decoder.getLocation();
               long elevation = decoder.getElevation();
               Object value = decoder.getValue();
               
-              Point point = Point.measurement(measurement);
+              Point point = Point.measurement(mes);
               point.addTags(tags);
               point.time(ts, PRECISION);
               
@@ -326,6 +343,12 @@ public class INFLUXDBUPDATE extends NamedWarpScriptFunction implements WarpScrip
           } else if (elt instanceof GeoTimeSerie) {
             GeoTimeSerie gts = (GeoTimeSerie) elt;
             String field = gts.getName();
+            
+            String mes = measurement;
+            if (null != measurementAttr && gts.getMetadata().getAttributesSize() > 0 && gts.getMetadata().getAttributes().containsKey(measurementAttr)) {
+              mes = gts.getMetadata().getAttributes().get(measurementAttr);
+            }
+
             Map<String,String> tags = new HashMap<String,String>(gts.getLabels());
             for (int i = 0; i < GTSHelper.nvalues(gts); i++) {
               long ts = GTSHelper.tickAtIndex(gts, i);
@@ -333,7 +356,7 @@ public class INFLUXDBUPDATE extends NamedWarpScriptFunction implements WarpScrip
               long elevation = GTSHelper.elevationAtIndex(gts, i);
               Object value = GTSHelper.valueAtIndex(gts, i);
               
-              Point point = Point.measurement(measurement);
+              Point point = Point.measurement(mes);
               point.addTags(tags);
               point.time(ts, PRECISION);
               

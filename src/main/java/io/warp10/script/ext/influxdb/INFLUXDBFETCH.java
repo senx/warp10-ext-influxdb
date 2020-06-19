@@ -40,10 +40,7 @@ import io.warp10.script.WarpScriptStackFunction;
 
 public class INFLUXDBFETCH extends NamedWarpScriptFunction implements WarpScriptStackFunction {
     
-  private static final String KEY_URL = "url";
-  private static final String KEY_DB = "db";
-  private static final String KEY_USER = "user";
-  private static final String KEY_PASSWORD = "password";
+  public static final String KEY_DB = "db";
   private static final String KEY_INFLUXQL = "influxql";
 
   public INFLUXDBFETCH(String name) {
@@ -64,9 +61,9 @@ public class INFLUXDBFETCH extends NamedWarpScriptFunction implements WarpScript
       Map<Object,Object> params = (Map<Object,Object>) top;
       influxql = String.valueOf(params.get(KEY_INFLUXQL));
       dbName = String.valueOf(params.get(KEY_DB));
-      password = String.valueOf(params.get(KEY_PASSWORD));
-      username = String.valueOf(params.get(KEY_USER));
-      url = String.valueOf(params.get(KEY_URL));
+      password = String.valueOf(params.get(INFLUXDBFLUX.KEY_PASSWORD));
+      username = String.valueOf(params.get(INFLUXDBFLUX.KEY_USER));
+      url = String.valueOf(params.get(INFLUXDBFLUX.KEY_URL));
     } else {
       if (!(top instanceof String)) {
         throw new WarpScriptException(getName() + " expects an InfluxQL query.");

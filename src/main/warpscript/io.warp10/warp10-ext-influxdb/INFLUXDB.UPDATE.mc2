@@ -1,0 +1,65 @@
+//
+//   Copyright 2020  SenX S.A.S.
+//
+//   Licensed under the Apache License, Version 2.0 (the "License");
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+//
+
+{
+  'name' 'INFLUXDB.UPDATE'
+  'since' '1.0.0'
+  'deprecated' ''
+  'deleted' ''
+  'version' 'all'
+  'tags' [ 'extensions' ]
+  'desc' 
+    <'
+The `INFLUXDB.UPDATE` function stores Geo Time Series or GTS Encoders as series in an [InfluxDB](https://www.influxdata.com/products/influxdb-overview/) instance.
+
+The parameter map must contain the following entries:
+
+| Key | Description |
+|-----|-------------|
+| `v1` | Set to `true` to indicate the InfluxDB instance is version `1.x`. |
+| `url` | URL of the InfluxDB endpoint to use. |
+| `db` | `1.x` only. Name of the InfluxDB database to access. |
+| `measurement` | Default measurement under which the data should be stored. |
+| `attr` | Name of attribute which contains the name of the measurement to use instead of above default. |
+| `user` | User used for authentification. Mandatory for `1.x`, use for `2.x` if `token` is not specified. |
+| `password` | Password associated with `user`. Mandatory for `1.x`, use for `2.x` if `token` is not specified. |
+| `token` | `2.x` only, access token to use for connection to InfluxDB. |
+| `org` | `2.x` only, organization to use. |
+| `bucket` | `2.x` only, bucket to use for storing the data. |
+| `batchsize` | `2.x` only. Number of points to batch in a single call to the backend. Maximum value is 10000, defaults to 5000. |
+
+For InfluxDB `2.x`, when storing a point which has a location, fields `lat` and `lon` will be set automatically. If the point has an elevation, field `elev` will be set automatically.
+    '>
+  'sig' [
+    [ [ 'params:MAP' 'data:LIST' ] [] ]
+  ]
+  'params' {
+    'params' 'Map containing input parameters.'
+    'data' 'List of Geo Time Series or GTS Encoders to store.'
+  }
+  'related' [ 'INFLUXDB.FLUX' 'INFLUXDB.FETCH' ]
+  'examples' [ 
+  ]
+  'conf' [ 'warpscript.extensions' ]
+  'ext' 'io.warp10.script.ext.influxdb.InfluxDBWarpScriptExtension'
+} 'info' STORE
+<%
+  !$info INFO
+  'INFLUXDB.UPDATE' EVAL
+%>
+'macro' STORE
+// Unit tests
+$macro
