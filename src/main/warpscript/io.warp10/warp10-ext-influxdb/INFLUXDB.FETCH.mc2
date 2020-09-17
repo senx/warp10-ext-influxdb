@@ -39,15 +39,15 @@ The parameter map must contain the following entries:
 
     '>
   'sig' [
-    [ [ 'queries:STRING' 'db:STRING' 'password:STRING' 'username:STRING' 'URL:STRING' ]  [ 'gts:LIST<LIST<GTS>>' ] ]
+    [ [ 'influxql:STRING' 'db:STRING' 'password:STRING' 'user:STRING' 'url:STRING' ]  [ 'gts:LIST<LIST<GTS>>' ] ]
     [ [ 'params:MAP' ] [ 'gts:LIST<LIST<GTS>>' ] ]
   ]
   'params' {
     'params' 'Map containing input parameters. Future versions of the extension will only support this signature.'
-    'queries' 'InfluxQL queries, separated by `;`. Queries should contain a GROUP BY clause otherwise tags will produce new Geo Time Series.'
+    'influxql' 'InfluxQL queries, separated by `;`. Queries should contain a GROUP BY clause otherwise tags will produce new Geo Time Series.'
     'db' 'Name of the InfluxDB database to use'
     'password' 'Password associated with `username`, use a dummy value if authentication is not configured.'
-    'username' 'Username to use for authentication, put a dummy value if authentication is not configured.'
+    'user' 'Username to use for authentication, put a dummy value if authentication is not configured.'
     'url' 'URL of the InfluxDB endpoint, i.e. http://127.0.0.1:8086/'
     'gts' 'List of lists of Geo Time Series, one inner list per InfluxQL query in `queries`.'
   }
