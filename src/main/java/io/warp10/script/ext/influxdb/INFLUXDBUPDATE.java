@@ -129,6 +129,8 @@ public class INFLUXDBUPDATE extends NamedWarpScriptFunction implements WarpScrip
       
       List<Object> data;
       
+      top = stack.pop();
+
       if (top instanceof List) {
         data = (List<Object>) top;
       } else if (top instanceof GeoTimeSerie || top instanceof GTSEncoder) {
