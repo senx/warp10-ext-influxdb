@@ -1,5 +1,5 @@
 //
-//   Copyright 2020  SenX S.A.S.
+//   Copyright 2020-2021  SenX S.A.S.
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -35,6 +35,8 @@ The parameter map must contain the following entries:
 | `token` | Access token to use for connection to InfluxDB. |
 | `org` |  Organization to use. |
 | `flux` | Flux query to execute. |
+| `readTimeout` | Read timeout used to execute read InfluxDB queries (in milliseconds). Optional - Default value from [OkHttp lib](https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/-builder/read-timeout/). |
+| `writeTimeout` | Write timeout used to execute write InfluxDB queries (in milliseconds). Optional - Default value from [OkHttp lib](https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/-builder/write-timeout/). |
 
 The results returned by flux each contain a table id, this table id is inserted as the value of special label `_table` in the returned Geo Time Series. If a series already contains a label `_table`, extra leading underscores will be added until no such label exists.
     '>

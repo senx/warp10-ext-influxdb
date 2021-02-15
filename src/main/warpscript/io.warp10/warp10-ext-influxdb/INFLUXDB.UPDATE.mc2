@@ -1,5 +1,5 @@
 //
-//   Copyright 2020  SenX S.A.S.
+//   Copyright 2020-2021  SenX S.A.S.
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -40,6 +40,8 @@ The parameter map must contain the following entries:
 | `org` | `2.x` only, organization to use. |
 | `bucket` | `2.x` only, bucket to use for storing the data. |
 | `batchsize` | `2.x` only. Number of points to batch in a single call to the backend. Maximum value is 10000, defaults to 5000. |
+| `readTimeout` | Read timeout used to execute read InfluxDB queries (in milliseconds). Optional - Default value from [OkHttp lib](https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/-builder/read-timeout/). |
+| `writeTimeout` | Write timeout used to execute write InfluxDB queries (in milliseconds). Optional - Default value from [OkHttp lib](https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/-builder/write-timeout/). |
 
 For InfluxDB `2.x`, when storing a point which has a location, fields `lat` and `lon` will be set automatically. If the point has an elevation, field `elev` will be set automatically.
     '>

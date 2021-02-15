@@ -1,5 +1,5 @@
 //
-//   Copyright 2018-2020  SenX S.A.S.
+//   Copyright 2018-2021  SenX S.A.S.
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient.Builder;
 
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
@@ -56,7 +58,7 @@ public class INFLUXDBFETCH extends NamedWarpScriptFunction implements WarpScript
     String password;
     String username;
     String url;
-    
+    Builder okHttpClientBuilder = null;
     if (top instanceof Map) {
       Map<Object,Object> params = (Map<Object,Object>) top;
       influxql = String.valueOf(params.get(KEY_INFLUXQL));
@@ -64,6 +66,7 @@ public class INFLUXDBFETCH extends NamedWarpScriptFunction implements WarpScript
       password = String.valueOf(params.get(INFLUXDBFLUX.KEY_PASSWORD));
       username = String.valueOf(params.get(INFLUXDBFLUX.KEY_USER));
       url = String.valueOf(params.get(INFLUXDBFLUX.KEY_URL));
+      okHttpClientBuilder = HttpClientUtils.getOkHttpClientBuilder(getName(), params);
     } else {
       if (!(top instanceof String)) {
         throw new WarpScriptException(getName() + " expects an InfluxQL query.");
@@ -101,11 +104,16 @@ public class INFLUXDBFETCH extends NamedWarpScriptFunction implements WarpScript
         throw new WarpScriptException(getName() + " expects a database URL before the username.");
       }
       
-      url = top.toString();            
+      url = top.toString();
     }
-    
-    InfluxDB influxdb = InfluxDBFactory.connect(url, username, password);
-    
+
+    InfluxDB influxdb;
+    if (null != okHttpClientBuilder) {
+      influxdb = InfluxDBFactory.connect(url, username, password, okHttpClientBuilder);
+    } else {
+      influxdb = InfluxDBFactory.connect(url, username, password);
+    }
+
     Query query = new Query(influxql, dbName, true);
     
     // Request timestamps as nanoseconds so we do not waste time parsing timestamps

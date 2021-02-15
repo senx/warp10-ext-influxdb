@@ -1,5 +1,5 @@
 //
-//   Copyright 2020  SenX S.A.S.
+//   Copyright 2020-2021  SenX S.A.S.
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ import com.influxdb.query.FluxColumn;
 import com.influxdb.query.FluxRecord;
 import com.influxdb.query.FluxTable;
 
+import okhttp3.OkHttpClient.Builder;
+
 import io.warp10.continuum.gts.GTSHelper;
 import io.warp10.continuum.gts.GeoTimeSerie;
 import io.warp10.continuum.store.Constants;
@@ -48,7 +50,7 @@ public class INFLUXDBFLUX extends NamedWarpScriptFunction implements WarpScriptS
   public static final String KEY_USER = "user";
   public static final String KEY_PASSWORD = "password";
   private static final String KEY_FLUX = "flux";
-  
+
   public INFLUXDBFLUX(String name) {
     super(name);
   }
@@ -92,29 +94,32 @@ public class INFLUXDBFLUX extends NamedWarpScriptFunction implements WarpScriptS
     
     builder.org((String) params.get(KEY_ORG));
 
+    final Builder okHttpClientBuilder = HttpClientUtils.getOkHttpClientBuilder(getName(), params);
+    builder.okHttpClient(okHttpClientBuilder);
+
     InfluxDBClientOptions options = builder.build();
-    
+
     InfluxDBClient client = null;
-    
+
     try {
       client = InfluxDBClientFactory.create(options);
-      
+
       //
       // We can use GeoTimeSerie instances because a table only contains elements of the same type
       //
       final Map<Map<String,String>,GeoTimeSerie> gts = new HashMap<Map<String,String>, GeoTimeSerie>();
-      
+
       QueryApi api = client.getQueryApi();
       List<FluxTable> tables = api.query(query);
-      
+
       for (FluxTable table: tables) {
         List<FluxColumn> group = table.getGroupKey();
 
         Map<String,String> labels = null;
         GeoTimeSerie series = null;
-        
+
         List<FluxRecord> records = table.getRecords();
-        
+
         for (FluxRecord record: records) {
           if (null == labels) {
             labels = new HashMap<String,String>(group.size());
@@ -132,7 +137,7 @@ public class INFLUXDBFLUX extends NamedWarpScriptFunction implements WarpScriptS
             labels.put(table_label, record.getTable().toString());
 
             series = gts.get(labels);
-            
+
             if (null == series) {
               series = new GeoTimeSerie(records.size());
               gts.put(labels, series);
@@ -140,7 +145,7 @@ public class INFLUXDBFLUX extends NamedWarpScriptFunction implements WarpScriptS
               series.setName(record.getTable().toString() + " " + record.getMeasurement() + " " + record.getField());
             }
           }
-          
+
           Instant instant = record.getTime();
           long ts = instant.getEpochSecond() * 1000000000L + instant.getNano();
           // Convert to platform time units
@@ -161,4 +166,7 @@ public class INFLUXDBFLUX extends NamedWarpScriptFunction implements WarpScriptS
     
     return stack;
   }
+
+
+
 }
