@@ -1,5 +1,5 @@
 //
-//   Copyright 2020  SenX S.A.S.
+//   Copyright 2020-2021  SenX S.A.S.
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient.Builder;
 
 import org.influxdb.BatchOptions;
 import org.influxdb.InfluxDB;
@@ -143,10 +145,11 @@ public class INFLUXDBUPDATE extends NamedWarpScriptFunction implements WarpScrip
       InfluxDB influxdb = null;
       
       try {
-        influxdb = InfluxDBFactory.connect(url, username, password);
+        final Builder okHttpClientBuilder = HttpClientUtils.getOkHttpClientBuilder(getName(), params);
+        influxdb = InfluxDBFactory.connect(url, username, password, okHttpClientBuilder);
         influxdb.setDatabase(db);
         influxdb.enableBatch(BatchOptions.DEFAULTS);
-        
+
         long units = 1000000000L / Constants.TIME_UNITS_PER_S;
         
         for (Object elt: data) {
@@ -268,6 +271,9 @@ public class INFLUXDBUPDATE extends NamedWarpScriptFunction implements WarpScrip
         measurementAttr = (String) params.get(KEY_ATTR);
       }
 
+      final Builder okHttpClientBuilder = HttpClientUtils.getOkHttpClientBuilder(getName(), params);
+      builder.okHttpClient(okHttpClientBuilder);
+
       InfluxDBClientOptions options = builder.build();
       
       InfluxDBClient client = null;
@@ -297,7 +303,7 @@ public class INFLUXDBUPDATE extends NamedWarpScriptFunction implements WarpScrip
         }
         
         write =  client.getWriteApi(woptions.build());
-        
+
         
         for (Object elt: data) {
           if (elt instanceof GTSEncoder) {
